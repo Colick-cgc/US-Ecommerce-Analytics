@@ -1,5 +1,5 @@
 # US-Ecommerce-Analytics
-
+U.S. E-commerce Business Analytics & Customer Value Analysis
 ## Project Overview
 
 An e-commerce business analytics project based on a synthetic U.S. e-commerce dataset containing approximately 1 million orders.
