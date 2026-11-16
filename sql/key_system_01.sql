@@ -51,7 +51,7 @@ group by date_format(o.order_purchase_timestamp, '%Y-%m')),
 saleswithlag as (select sales_month,monthly_price,lag(monthly_price) over (order by sales_month) as prev_month_sales
 from monthlysales)
 select round((monthly_price - prev_month_sales) / prev_month_sales * 100, 2) as growth_rate_percentage
-FROM saleswithlag;
+from saleswithlag;
 
 # 10.平均订单支付额
 
