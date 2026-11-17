@@ -1,8 +1,8 @@
 # 2.1.2 商品经营分析指标
 # 定义临时变量
-SET @start_date = '2024-01-01';
-SET @end_date   = '2024-12-31';
-SET @as_of_date = '2025-01-01';
+SET @start_date = '2019-01-01';
+SET @end_date   = '2026-01-01';
+SET @as_of_date = '2026-01-01';
 ## 有效订单
 with vaild_orders as (select o.order_id,c.customer_unique_id,date(o.order_purchase_timestamp) as purchase_date
 from orders o
@@ -15,7 +15,7 @@ vaild_order_amt as (select v.order_id,v.customer_unique_id,v.purchase_date, coal
 from vaild_orders v
 left join order_amt a on a.order_id = v.order_id),
 period_order as (select * from vaild_order_amt
-where purchase_date >= @start_date and purchase_date <= @end_date),
+where purchase_date >= @start_date and purchase_date < @end_date),
 period_customer as (select customer_unique_id,count(distinct order_id) as freq,sum(item_amount) as monetary
 from period_order group by customer_unique_id),
 first_purchase as(select customer_unique_id,min(purchase_date) as first_purchase_date
@@ -49,3 +49,13 @@ union all
 select round((select sum(freq) from period_customer)/ 
 nullif((select count(*) from period_customer), 0), 2);
 # 7. 客户生命周期价值
+SELECT
+    p.customer_unique_id,
+    DATEDIFF(@as_of_date, h.last_purchase_date) AS R,
+    p.freq AS F,
+    p.monetary AS M,
+    h.clv_amount AS CLV
+FROM period_customer p
+JOIN clv h
+    ON p.customer_unique_id = h.customer_unique_id
+ORDER BY R ASC, F DESC, M DESC;

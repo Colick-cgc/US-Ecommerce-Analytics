@@ -11,9 +11,9 @@ group by customer_unique_id),
 customer_order_month as(select v.customer_unique_id,f.cohort_month,date_format(v.purchase_date,'%Y-%m-01') as order_month,
 timestampdiff(month,str_to_date(f.cohort_month,'%Y-%m-%d'),str_to_date(date_format(v.purchase_date,'%Y-%m-01'),'%Y-%m-%d')) as month_index
 from vaild_order v
-join first_month f on o.customer_unique_id = f.customer_unique_id),
+join first_month f on v.customer_unique_id = f.customer_unique_id),
 
-cohort_size as(select cohort_month, count(distinct customer_unique_id) as first_buy_customer
+cohort_size as(select cohort_month, count(distinct customer_unique_id) as first_buy_customers
 from first_month
 group by cohort_month),
 
@@ -26,7 +26,7 @@ select
     r.month_index,
     r.retained_customers,
     c.first_buy_customers,
-    round(r.retained_customers / c.first_buy_customers * 100, 2) AS retention_rate
+    round(r.retained_customers* 100 / nullif(c.first_buy_customers,0) , 2) AS retention_rate
 from retention r
 join cohort_size c
   on r.cohort_month = c.cohort_month

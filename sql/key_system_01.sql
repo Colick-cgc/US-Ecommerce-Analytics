@@ -1,7 +1,9 @@
 # 2.2.1整体经营指标体系
 # 1. 商品销售额
 select sum(order_items.price) as total_price
-from order_items;
+from order_items oi
+join orders o on oi.order_id = o.order_id
+where order_status = 'delivered';
 # 2. 订单总量
 select count(distinct orders.order_id) as total_orders
 from orders;
@@ -15,14 +17,16 @@ from orders
 where order_status in ('canceled');
 # 5. 订单取消率
 select round(count(distinct case when orders.order_status = 'canceled' then order_id end)*100/
-count(distinct orders.order_id),2) as vaild_per
+nullif(count(distinct orders.order_id),0),2) as vaild_per
 from orders;
 # 6. 客户总数
 select count(distinct customers.customer_unique_id) as total_cus
 from customers;
 # 7. 客单价
 with sales as(select sum(order_items.price) as total_price
-from order_items),
+from order_items oi
+join orders o on oi.order_id = o.order_id
+where order_status = 'delivered'),
 
 vaildorders as (select count(distinct orders.order_id) as vaild_orders
 from orders
@@ -50,8 +54,16 @@ where o.order_status not in ('canceled', 'unavailable')
 group by date_format(o.order_purchase_timestamp, '%Y-%m')),
 saleswithlag as (select sales_month,monthly_price,lag(monthly_price) over (order by sales_month) as prev_month_sales
 from monthlysales)
-select round((monthly_price - prev_month_sales) / prev_month_sales * 100, 2) as growth_rate_percentage
-from saleswithlag;
+SELECT
+    sales_month,
+    ROUND(monthly_price, 2) AS monthly_price,
+    ROUND(
+        (monthly_price - prev_month_sales)
+        / NULLIF(prev_month_sales, 0) * 100,
+        2
+    ) AS growth_rate_percentage
+FROM saleswithlag
+ORDER BY sales_month;
 
 # 10.平均订单支付额
 
