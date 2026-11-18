@@ -1,6 +1,6 @@
 # 2.2.1整体经营指标体系
 # 1. 商品销售额
-select sum(order_items.price) as total_price
+select sum(oi.price) as total_price
 from order_items oi
 join orders o on oi.order_id = o.order_id
 where order_status = 'delivered';
@@ -23,7 +23,7 @@ from orders;
 select count(distinct customers.customer_unique_id) as total_cus
 from customers;
 # 7. 客单价
-with sales as(select sum(order_items.price) as total_price
+with sales as(select sum(oi.price) as total_price
 from order_items oi
 join orders o on oi.order_id = o.order_id
 where order_status = 'delivered'),
