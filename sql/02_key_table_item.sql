@@ -1,22 +1,21 @@
-create or replace view vw_fact_order_item as
+CREATE OR REPLACE VIEW vw_fact_order_item AS
 
-select
-    -- 订单与商品标识
+SELECT
     oi.order_id,
     oi.order_item_id,
     oi.product_id,
     oi.seller_id,
 
-    -- 商品金额
-    oi.price as item_price,
+    -- 订单商品金额
+    oi.price AS item_price,
     oi.freight_value,
 
     -- 商品信息
     p.product_category_name,
-    coalesce(
-        pt.product_category_name_english,
-        p.product_category_name
-    ) as product_category_english,
+    p.product_name,
+    p.product_brand,
+    p.cost AS product_cost,
+    p.price AS product_list_price,
 
     p.product_weight_g,
     p.product_length_cm,
@@ -35,40 +34,34 @@ select
 
     -- 订单时间与状态
     o.order_purchase_timestamp,
-    date_format(
+    DATE_FORMAT(
         o.order_purchase_timestamp, '%Y-%m'
-    ) as purchase_year_month,
+    ) AS purchase_year_month,
 
     o.order_status,
 
-    case
-        when o.order_status in ('canceled', 'unavailable')
-        then 0 else 1
-    end as is_valid_order,
+    CASE
+        WHEN o.order_status IN ('canceled', 'unavailable')
+        THEN 0
+        ELSE 1
+    END AS is_valid_order,
 
     -- 是否跨州
-    case
-        when s.seller_state is null
-          or c.customer_state is null
-        then null
-        when s.seller_state <> c.customer_state
-        then 1
-        else 0
-    end as is_cross_state
+    CASE
+        WHEN s.seller_state IS NULL
+          OR c.customer_state IS NULL
+        THEN NULL
+        WHEN s.seller_state <> c.customer_state
+        THEN 1
+        ELSE 0
+    END AS is_cross_state
 
-from order_items oi
-
-join orders o
-    on oi.order_id = o.order_id
-
-join customers c
-    on o.customer_id = c.customer_id
-
-left join products p
-    on oi.product_id = p.product_id
-
-left join product_category_name_translation pt
-    on p.product_category_name = pt.product_category_name
-
-left join sellers s
-    on oi.seller_id = s.seller_id;
+FROM order_items oi
+JOIN orders o
+    ON oi.order_id = o.order_id
+JOIN customers c
+    ON o.customer_id = c.customer_id
+LEFT JOIN products p
+    ON oi.product_id = p.product_id
+LEFT JOIN sellers s
+    ON oi.seller_id = s.seller_id;

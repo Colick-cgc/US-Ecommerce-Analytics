@@ -100,6 +100,7 @@ select
     -- 客户地区
     c.customer_city,
     c.customer_state,
+    c.customer_zip_code_prefix,
 
     -- 客户首购信息
     fp.first_purchase_time,
