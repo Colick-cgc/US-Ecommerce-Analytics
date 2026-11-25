@@ -9,7 +9,7 @@
 
 基于约 100 万条美国电商订单（Kaggle 合成数据集）的端到端分析项目：Python 完成数据清洗，MySQL 承担分析层（销售、支付方式、地域、RFM 分层、同期群留存、商品表现），Tableau 输出一屏经营看板，覆盖收入、订单、履约与客户结构。
 
-**在线看板：** [Tableau Public](https://public.tableau.com/app/profile/chen.chu6837)（发布后替换成你的工作簿链接）
+**在线看板：** [Tableau Public](https://public.tableau.com/app/profile/chen.chu6837)
 
 ---
 
